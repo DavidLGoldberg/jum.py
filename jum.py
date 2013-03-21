@@ -1,19 +1,19 @@
 import sublime, sublime_plugin
 import GotoPoint
 import tempfile
-import re
+import string, re
 
 class JumpyCommand(sublime_plugin.WindowCommand):
 
-	_keys = list()
-	_locations = list()
-	_bound_keys = dict()
+	_keys = []
+	_locations = []
+	_bound_keys = {}
 
 	def create_keys(self):
-		keys = list()
-		for c1 in range(97,123):
-		    for c2 in range(97,123):
-		        keys.append(chr(c1) + chr(c2))
+		keys = []
+		for c1 in string.lowercase:
+		    for c2 in string.lowercase:
+		        keys.append(c1 + c2)
 		self._keys = keys
 
 	def get_all_contents(self, view):
@@ -55,16 +55,15 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 
 		new_view.set_viewport_position(self._old_viewport)
 
-		regions = list()
-		for k, v in self._bound_keys.items():
-			row, col = v
+		regions = []
+		for (key, (row, col)) in self._bound_keys.items():
 			region_start = new_view.text_point(row, col)
 			region_finish = new_view.text_point(row, col + 2)
 
 			region = sublime.Region(region_start, region_finish)
 
 			edit = new_view.begin_edit()
-			new_view.replace(edit, region, k)
+			new_view.replace(edit, region, key)
 			new_view.end_edit(edit)
 
 			regions.append(region)
