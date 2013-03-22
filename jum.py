@@ -41,9 +41,7 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 		old_view = self.window.active_view()
 		self._old_viewport = old_view.viewport_position()
 
-		temporary_file = tempfile.NamedTemporaryFile('r')
-		temporary_file.name = "Jumpy to ?"
-		self.window.open_file(temporary_file.name, sublime.TRANSIENT)
+		self.window.open_file('Jumpy', sublime.TRANSIENT)
 
 		sublime.set_timeout(self.on_labels, 25) #improve this later to check when ready.
 
