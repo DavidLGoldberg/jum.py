@@ -21,12 +21,14 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 		return view.substr(region)
 
 	def set_all_word_locations(self):
+		locations = []
 		line_num = 0
 		p = re.compile('[\w]{2,}')
 		for line in self._file_contents.splitlines(False):
 			for m in p.finditer(line):
-				self._locations.append((line_num, m.start()))
+				locations.append((line_num, m.start()))
 			line_num += 1
+		self._locations = locations
 
 	def bind_key_locations(self):
 		#This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
