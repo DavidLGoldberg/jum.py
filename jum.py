@@ -96,3 +96,4 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 		row, col = self._bound_keys[self._key_entered]
 		original_view.run_command("goto_point", {"row": row + 1, "col": col + 1})
 		print 'jumpy jumped to row: %s, col: %s' % (row, col)
+		sublime.status_message('jumpy jumped to row: %s, col: %s' % (row, col))
