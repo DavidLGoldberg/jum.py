@@ -22,7 +22,7 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 
 	def set_all_word_locations(self):
 		line_num = 0
-		p = re.compile('[a-zA-Z0-9_]{2,}')
+		p = re.compile('[\w]{2,}')
 		for line in self._file_contents.splitlines(False):
 			for m in p.finditer(line):
 				self._locations.append((line_num, m.start()))
