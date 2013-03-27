@@ -3,6 +3,10 @@ import GotoPoint
 import tempfile
 import string, re
 
+def set_jumpy_commands(new_view, on=True):
+	new_view.settings().set('command_mode', not on)
+	new_view.settings().set('jumpy_jump_mode', on)
+
 class JumpyCommand(sublime_plugin.WindowCommand):
 
 	def create_keys(self):
@@ -46,15 +50,13 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 			new_view.insert(edit, new_view.size(), file_contents)
 			new_view.end_edit(edit)	
 		
-		global g_jump_locations
-
 		new_view = self.window.active_view()
+		set_jumpy_commands(new_view)
 		new_view.set_scratch(True)
-
 		duplicate_contents(new_view, self._file_contents)
-
 		new_view.set_viewport_position(self._old_viewport)
 
+		global g_jump_locations
 		regions = []
 		for (key, (row, col)) in g_jump_locations.items():
 			region_start = new_view.text_point(row, col)
@@ -69,8 +71,6 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 			regions.append(region)
 
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
-
-		new_view.settings().set('jumpy_jump_mode', True)
 
 	def run(self):
 		view = self.window.active_view()
@@ -87,7 +87,7 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 
 class InputKeyPart(sublime_plugin.TextCommand):
 	def clean_up(self):
-		self.view.settings().set('jumpy_jump_mode', False)
+		set_jumpy_commands(self.view, False)
 		shortcut_window = self.view.window()
 		shortcut_window.run_command('close')
 
