@@ -4,6 +4,7 @@ A sublime plugin that creates dynamic hot keys to jump around a file.
 ## How to jump
 1. Hit <kbd>alt</kbd> + <kbd>space</kbd>
 2. Choose from your presented labels:
+![screenshot](https://raw.github.com/DavidLGoldberg/jum.py/master/example_jumpy_labels.png)
 3. Enter two characters.
 4. Keep coding!
 
