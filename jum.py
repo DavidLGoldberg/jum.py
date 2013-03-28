@@ -3,11 +3,13 @@ import GotoPoint
 import tempfile
 import string, re
 
-def set_jumpy_commands(new_view, on=True):
-	new_view.settings().set('command_mode', not on)
-	new_view.settings().set('jumpy_jump_mode', on)
+class BaseJumpyCommand(sublime_plugin.TextCommand):
 
-class JumpyCommand(sublime_plugin.TextCommand):
+	def set_jumpy_commands(self, new_view, on=True):
+		new_view.settings().set('command_mode', not on)
+		new_view.settings().set('jumpy_jump_mode', on)
+
+class JumpyCommand(BaseJumpyCommand):
 
 	def create_keys(self):
 		keys = []
@@ -51,7 +53,7 @@ class JumpyCommand(sublime_plugin.TextCommand):
 			new_view.end_edit(edit)	
 		
 		new_view = sublime.active_window().active_view()
-		set_jumpy_commands(new_view) # Todo replace when inherited
+		self.set_jumpy_commands(new_view) # Todo replace when inherited
 		new_view.set_scratch(True)
 		duplicate_contents(new_view, self._file_contents)
 		new_view.set_viewport_position(self._old_viewport)
@@ -84,9 +86,9 @@ class JumpyCommand(sublime_plugin.TextCommand):
 
 			self.activate_jumpy_mode()
 
-class InputKeyPart(sublime_plugin.TextCommand):
+class InputKeyPart(BaseJumpyCommand):
 	def clean_up(self):
-		set_jumpy_commands(self.view, False)
+		self.set_jumpy_commands(self.view, False)
 		shortcut_window = self.view.window()
 		shortcut_window.run_command('close')
 
@@ -122,4 +124,3 @@ class InputKeyPart(sublime_plugin.TextCommand):
 		
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
-
