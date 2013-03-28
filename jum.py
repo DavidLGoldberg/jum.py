@@ -2,6 +2,7 @@ import sublime, sublime_plugin
 import GotoPoint
 import tempfile
 import string, re
+from os.path import basename
 
 class BaseJumpyCommand(sublime_plugin.TextCommand):
 
@@ -42,7 +43,8 @@ class JumpyCommand(BaseJumpyCommand):
 		global g_key_entered_thus_far
 		g_key_entered_thus_far = ''
 
-		self.view.window().open_file('Jumpy', sublime.TRANSIENT)
+		file_name = 'Jumpy_' + basename(self.view.file_name()) if sublime.load_settings('Jumpy.sublime-settings').get('use_file_extensions') else 'Jumpy'
+		self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		sublime.set_timeout(self.on_labels, 25) #improve this later to check when ready.
 

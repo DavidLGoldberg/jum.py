@@ -29,11 +29,17 @@ as shown below:
 		]
 	}
 
+## Settings
+
+    {
+	// Can be turned off to potentially improve performance or make less confusing.
+        "use_file_extensions": true
+	}
+
 ## Notes
 * Works great with Vintage.  Accessible from command or insert modes.
 
 ## TODO
-* remove unreachable highlights after first character hit (to reduce noise).
 * more viewport work, to only label string with in visible view + inherit no scroll on jumpy file.
 * label all views across windows with for example layout of two column etc.
-* open as existing file type ie. jumpy_<filename>.<ext> to trigger the same syntax colorign etc.
+* remove unreachable highlights after first character hit (to reduce noise).
