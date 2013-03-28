@@ -19,10 +19,6 @@ class JumpyCommand(BaseJumpyCommand):
 				keys.append(c1 + c2)
 		return keys
 
-	def get_file_contents(self): #TODO add support for only pulling viewport
-		region = sublime.Region(0, self.view.size())
-		return self.view.substr(region)
-
 	def get_all_word_locations(self, file_contents):
 		locations = []
 		line_num = 0
@@ -39,6 +35,9 @@ class JumpyCommand(BaseJumpyCommand):
 
 	def activate_jumpy_mode(self):
 		self._old_viewport = self.view.viewport_position()
+		global g_old_offsets
+		g_old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
+
 
 		global g_key_entered_thus_far
 		g_key_entered_thus_far = ''
@@ -51,18 +50,20 @@ class JumpyCommand(BaseJumpyCommand):
 	def on_labels(self):
 		def duplicate_contents(new_view, file_contents):
 			edit = new_view.begin_edit()
-			new_view.insert(edit, new_view.size(), file_contents)
+			padded_file_contents = file_contents.rjust(len(file_contents) + g_old_offsets[0], '\n')
+			new_view.insert(edit, 0, padded_file_contents)
 			new_view.end_edit(edit)	
 		
 		new_view = sublime.active_window().active_view()
-		self.set_jumpy_commands(new_view) # Todo replace when inherited
+		self.set_jumpy_commands(new_view)
 		new_view.set_scratch(True)
-		duplicate_contents(new_view, self._file_contents)
-		new_view.set_viewport_position(self._old_viewport)
+		duplicate_contents(new_view, self._visible_text)
 
 		global g_jump_locations
 		regions = []
 		for (key, (row, col)) in g_jump_locations.items():
+			row += g_old_offsets[0]
+			col += g_old_offsets[1]
 			region_start = new_view.text_point(row, col)
 			region_finish = new_view.text_point(row, col + 2)
 
@@ -76,13 +77,16 @@ class JumpyCommand(BaseJumpyCommand):
 
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
 
+		new_view.set_viewport_position(self._old_viewport)
+
 	def run(self, edit):
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			global g_jump_locations
 
 			keys = self.create_keys()
-			self._file_contents = self.get_file_contents()	
-			locations = self.get_all_word_locations(self._file_contents)
+
+			self._visible_text = self.view.substr(self.view.visible_region())
+			locations = self.get_all_word_locations(self._visible_text)
 
 			g_jump_locations = self.get_jump_locations(keys, locations)
 
@@ -122,7 +126,10 @@ class InputKeyPart(BaseJumpyCommand):
 		row, col = g_jump_locations[g_key_entered_thus_far]
 		row += 1
 		col += 1
-		original_view.run_command("goto_point", {"row": row , "col": col})
-		
+
+		global g_old_offsets
+		row_offset, col_offset = g_old_offsets
+		original_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
+
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))

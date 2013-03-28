@@ -12,4 +12,4 @@ class GotoPointCommand(sublime_plugin.TextCommand):
 		self.view.sel().clear()
 		self.view.sel().add(sublime.Region(pt))
 
-		self.view.show(pt)
+		self.view.show(pt, False)
