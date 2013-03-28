@@ -7,7 +7,7 @@ def set_jumpy_commands(new_view, on=True):
 	new_view.settings().set('command_mode', not on)
 	new_view.settings().set('jumpy_jump_mode', on)
 
-class JumpyCommand(sublime_plugin.WindowCommand):
+class JumpyCommand(sublime_plugin.TextCommand):
 
 	def create_keys(self):
 		keys = []
@@ -16,9 +16,9 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 				keys.append(c1 + c2)
 		return keys
 
-	def get_file_contents(self, view): #TODO add support for only pulling viewport
-		region = sublime.Region(0, view.size())
-		return view.substr(region)
+	def get_file_contents(self): #TODO add support for only pulling viewport
+		region = sublime.Region(0, self.view.size())
+		return self.view.substr(region)
 
 	def get_all_word_locations(self, file_contents):
 		locations = []
@@ -34,13 +34,13 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 		#This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
 		return dict(zip(keys, locations))
 
-	def activate_jumpy_mode(self, old_view):
-		self._old_viewport = old_view.viewport_position()
+	def activate_jumpy_mode(self):
+		self._old_viewport = self.view.viewport_position()
 
 		global g_key_entered_thus_far
 		g_key_entered_thus_far = ''
 
-		self.window.open_file('Jumpy', sublime.TRANSIENT)
+		self.view.window().open_file('Jumpy', sublime.TRANSIENT)
 
 		sublime.set_timeout(self.on_labels, 25) #improve this later to check when ready.
 
@@ -50,8 +50,8 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 			new_view.insert(edit, new_view.size(), file_contents)
 			new_view.end_edit(edit)	
 		
-		new_view = self.window.active_view()
-		set_jumpy_commands(new_view)
+		new_view = sublime.active_window().active_view()
+		set_jumpy_commands(new_view) # Todo replace when inherited
 		new_view.set_scratch(True)
 		duplicate_contents(new_view, self._file_contents)
 		new_view.set_viewport_position(self._old_viewport)
@@ -72,18 +72,17 @@ class JumpyCommand(sublime_plugin.WindowCommand):
 
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
 
-	def run(self):
-		view = self.window.active_view()
-		if not view.settings().get('jumpy_jump_mode'): # don't open twice
+	def run(self, edit):
+		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			global g_jump_locations
 
 			keys = self.create_keys()
-			self._file_contents = self.get_file_contents(view)	
+			self._file_contents = self.get_file_contents()	
 			locations = self.get_all_word_locations(self._file_contents)
 
 			g_jump_locations = self.get_jump_locations(keys, locations)
 
-			self.activate_jumpy_mode(view)
+			self.activate_jumpy_mode()
 
 class InputKeyPart(sublime_plugin.TextCommand):
 	def clean_up(self):
@@ -111,7 +110,7 @@ class InputKeyPart(sublime_plugin.TextCommand):
 
 	def jump(self, shortcut_entered):
 		self.clean_up()
-		sublime.set_timeout(self.on_jump_entered, 75)
+		sublime.set_timeout(self.on_jump_entered, 25)
 
 	def on_jump_entered(self):
 		original_view = sublime.active_window().active_view() # because shortcuts are closed
@@ -123,3 +122,4 @@ class InputKeyPart(sublime_plugin.TextCommand):
 		
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
+
