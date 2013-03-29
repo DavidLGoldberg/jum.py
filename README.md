@@ -37,9 +37,8 @@ as shown below:
 	}
 
 ## Notes
-* Works great with Vintage.  Accessible from command or insert modes.
+* Works great with or without Vintage.  With Vintage it's accessible from command, insert mode, or visual mode (cancels highlight for this one).
 
 ## TODO
-* more viewport work, to only label string with in visible view + inherit no scroll on jumpy file.
 * label all views across windows with for example layout of two column etc.
 * remove unreachable highlights after first character hit (to reduce noise).
