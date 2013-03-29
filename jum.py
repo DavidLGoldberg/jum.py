@@ -17,7 +17,11 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 			BaseJumpyCommand.keys = self.create_keys()
 
 		if not BaseJumpyCommand.settings:
-			BaseJumpyCommand.settings['use_file_extensions'] = sublime.load_settings('Jumpy.sublime-settings').get('use_file_extensions')	
+			sublime_settings = sublime.load_settings('Jumpy.sublime-settings')
+
+			jumpy_setting_names = ['jumpy_use_file_extensions']
+			for setting_name in jumpy_setting_names:
+				BaseJumpyCommand.settings[setting_name] = sublime_settings.get(setting_name)	
 
 		sublime_plugin.TextCommand.__init__(self, edit)
 
@@ -52,7 +56,7 @@ class JumpyCommand(BaseJumpyCommand):
 		self._old_viewport = self.view.viewport_position()
 		BaseJumpyCommand.old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 
-		file_name = 'Jumpy_' + basename(self.view.file_name()) if BaseJumpyCommand.settings['use_file_extensions'] else 'Jumpy'
+		file_name = 'Jumpy_' + basename(self.view.file_name()) if BaseJumpyCommand.settings['jumpy_use_file_extensions'] else 'Jumpy'
 		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)

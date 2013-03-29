@@ -1,4 +1,4 @@
 {
   // Can be turned off to potentially improve performance or make less confusing.
-  "use_file_extensions": true
+  "jumpy_use_file_extensions": true
 }
