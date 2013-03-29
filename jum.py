@@ -3,6 +3,7 @@ import GotoPoint
 import tempfile
 import string, re
 from os.path import basename
+from async_utils import do_when
 
 class BaseJumpyCommand(sublime_plugin.TextCommand):
 
@@ -52,9 +53,9 @@ class JumpyCommand(BaseJumpyCommand):
 		BaseJumpyCommand.old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 
 		file_name = 'Jumpy_' + basename(self.view.file_name()) if BaseJumpyCommand.settings['use_file_extensions'] else 'Jumpy'
-		self.view.window().open_file(file_name, sublime.TRANSIENT)
+		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
 
-		sublime.set_timeout(self.on_labels, 25) #improve this later to check when ready.
+		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
 
 	def on_labels(self):
 		def duplicate_contents(new_view, file_contents):
@@ -123,7 +124,9 @@ class InputKeyPart(BaseJumpyCommand):
 
 	def jump(self, shortcut_entered):
 		self.clean_up()
-		sublime.set_timeout(self.on_jump_entered, 25)
+		# I am pretty sure the code below is NOT needed.  That the run_command is in fact SYNCHRONOUS.
+		#do_when(lambda: not self.view.name().startswith('Jumpy'), lambda: self.on_jump_entered(), 10)
+		self.on_jump_entered()
 
 	def on_jump_entered(self):
 		original_view = sublime.active_window().active_view() # because shortcuts are closed

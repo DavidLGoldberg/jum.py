@@ -10,13 +10,13 @@ def do_when(conditional, callback, interval=50, *args, **kwargs):
     conditional -- Lambda that tests when ready to call the callback.
     callback -- Lambda callback to be callled when condition is met.
     interval -- The interval to poll with in milliseconds.
-    			Defaults to 50 milliseconds.
+    Defaults to 50 milliseconds.
 
     """
     if conditional():
         return callback(*args, **kwargs)
     set_timeout(partial(do_when, conditional, callback, *args, **kwargs),
-		interval)
+        interval)
 
     # Example usage:
     # do_when(lambda: not self.active_view().is_loading(),
