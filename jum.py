@@ -6,14 +6,23 @@ from os.path import basename
 
 class BaseJumpyCommand(sublime_plugin.TextCommand):
 
+	settings = {}
+	keys = []
 	key_entered_thus_far = ''
 	jump_locations = {}
+
+	def __init__(self, edit):
+		if not BaseJumpyCommand.keys:
+			BaseJumpyCommand.keys = self.create_keys()
+
+		if not BaseJumpyCommand.settings:
+			BaseJumpyCommand.settings['use_file_extensions'] = sublime.load_settings('Jumpy.sublime-settings').get('use_file_extensions')	
+
+		sublime_plugin.TextCommand.__init__(self, edit)
 
 	def set_jumpy_commands(self, new_view, on=True):
 		new_view.settings().set('command_mode', not on)
 		new_view.settings().set('jumpy_jump_mode', on)
-
-class JumpyCommand(BaseJumpyCommand):
 
 	def create_keys(self):
 		keys = []
@@ -21,6 +30,8 @@ class JumpyCommand(BaseJumpyCommand):
 			for c2 in string.lowercase:
 				keys.append(c1 + c2)
 		return keys
+
+class JumpyCommand(BaseJumpyCommand):
 
 	def get_all_word_locations(self, file_contents):
 		locations = []
@@ -40,7 +51,7 @@ class JumpyCommand(BaseJumpyCommand):
 		self._old_viewport = self.view.viewport_position()
 		BaseJumpyCommand.old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 
-		file_name = 'Jumpy_' + basename(self.view.file_name()) if sublime.load_settings('Jumpy.sublime-settings').get('use_file_extensions') else 'Jumpy'
+		file_name = 'Jumpy_' + basename(self.view.file_name()) if BaseJumpyCommand.settings['use_file_extensions'] else 'Jumpy'
 		self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		sublime.set_timeout(self.on_labels, 25) #improve this later to check when ready.
@@ -80,12 +91,10 @@ class JumpyCommand(BaseJumpyCommand):
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
-			keys = self.create_keys()
-
 			self._visible_text = self.view.substr(self.view.visible_region())
 			locations = self.get_all_word_locations(self._visible_text)
 
-			BaseJumpyCommand.jump_locations = self.get_jump_locations(keys, locations)
+			BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
 
 			self.activate_jumpy_mode()
 
