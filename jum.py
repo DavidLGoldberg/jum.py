@@ -92,6 +92,7 @@ class JumpyCommand(BaseJumpyCommand):
 			regions.append(region)
 
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
+		new_view.set_read_only(True)
 
 		new_view.set_viewport_position(self._old_viewport)
 
