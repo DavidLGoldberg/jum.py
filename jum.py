@@ -9,8 +9,6 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 	settings = {}
 	keys = []
-	key_entered_thus_far = ''
-	jump_locations = {}
 
 	def __init__(self, edit):
 		if not BaseJumpyCommand.keys:
