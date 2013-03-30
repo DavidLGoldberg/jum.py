@@ -56,7 +56,12 @@ class JumpyCommand(BaseJumpyCommand):
 		self._old_viewport = self.view.viewport_position()
 		BaseJumpyCommand.old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 
-		file_name = 'Jumpy_' + basename(self.view.file_name()) if BaseJumpyCommand.settings['jumpy_use_file_extensions'] else 'Jumpy'
+		file_name = self.view.file_name()
+		if file_name:
+			if BaseJumpyCommand.settings['jumpy_use_file_extensions']:
+				file_name = 'Jumpy_' + basename(file_name)
+		else:
+			file_name = 'Jumpy'
 		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
