@@ -54,7 +54,8 @@ class JumpyCommand(BaseJumpyCommand):
 
 	def activate_jumpy_mode(self):
 		self._old_viewport = self.view.viewport_position()
-		BaseJumpyCommand.old_offsets = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
+		BaseJumpyCommand.old_offset = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
+		BaseJumpyCommand.old_file_size = self.view.substr(sublime.Region(0, self.view.size()))
 
 		file_name = self.view.file_name()
 		if file_name:
@@ -67,11 +68,15 @@ class JumpyCommand(BaseJumpyCommand):
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
 
 	def on_labels(self):
-		def duplicate_contents(new_view, file_contents):
+		def duplicate_contents(new_view, visible_text):
 			edit = new_view.begin_edit()
-			padded_file_contents = file_contents.rjust(len(file_contents) + BaseJumpyCommand.old_offsets[0], '\n')
-			new_view.insert(edit, 0, padded_file_contents)
-			new_view.end_edit(edit)	
+			padded_text = visible_text \
+				.rjust(len(visible_text) + BaseJumpyCommand.old_offset[0], '\n')
+			padded_text = padded_text \
+				.ljust(len(padded_text) + \
+					(BaseJumpyCommand.old_file_size.count('\n') - (padded_text.count('\n')) ), '\n')
+			new_view.insert(edit, 0, padded_text)
+			new_view.end_edit(edit)
 		
 		new_view = sublime.active_window().active_view()
 		self.set_jumpy_commands(new_view)
@@ -80,8 +85,8 @@ class JumpyCommand(BaseJumpyCommand):
 
 		regions = []
 		for (key, (row, col)) in BaseJumpyCommand.jump_locations.items():
-			row += BaseJumpyCommand.old_offsets[0]
-			col += BaseJumpyCommand.old_offsets[1]
+			row += BaseJumpyCommand.old_offset[0]
+			col += BaseJumpyCommand.old_offset[1]
 			region_start = new_view.text_point(row, col)
 			region_finish = new_view.text_point(row, col + 2)
 
@@ -152,7 +157,7 @@ class InputKeyPart(BaseJumpyCommand):
 
 		row += 1
 		col += 1
-		row_offset, col_offset = BaseJumpyCommand.old_offsets
+		row_offset, col_offset = BaseJumpyCommand.old_offset
 		original_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
 
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
