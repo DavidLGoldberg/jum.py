@@ -138,7 +138,12 @@ class InputKeyPart(BaseJumpyCommand):
 	def on_jump_entered(self):
 		original_view = sublime.active_window().active_view() # because shortcuts are closed
 
-		row, col = BaseJumpyCommand.jump_locations[BaseJumpyCommand.key_entered_thus_far]
+		try:
+			row, col = BaseJumpyCommand.jump_locations[BaseJumpyCommand.key_entered_thus_far]
+		except KeyError, e:
+			sublime.status_message('Jumpy: %s is not a jump point' % BaseJumpyCommand.key_entered_thus_far)
+			return
+			
 		row += 1
 		col += 1
 
