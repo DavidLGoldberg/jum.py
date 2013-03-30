@@ -12,6 +12,11 @@
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
 
+	// backspace lets you undo the first character entered.
+	{ "keys": ["backspace"], "command": "input_key_part", "args": {"character": "backspace"},
+		"context": [{"key": "setting.jumpy_jump_mode"}]
+	},
+
 	// a - z for jumping.
 	{ "keys": ["a"], "command": "input_key_part", "args": {"character": "a"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]

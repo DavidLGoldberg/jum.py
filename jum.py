@@ -121,6 +121,9 @@ class InputKeyPart(BaseJumpyCommand):
 
 		if character in [' ', 'escape']:
 			cancel(self.view)
+		elif character == 'backspace':
+			BaseJumpyCommand.key_entered_thus_far = ''
+			sublime.status_message('Jumpy: *reset*')
 		else:
 			BaseJumpyCommand.key_entered_thus_far = BaseJumpyCommand.key_entered_thus_far + character
 
@@ -143,10 +146,9 @@ class InputKeyPart(BaseJumpyCommand):
 		except KeyError, e:
 			sublime.status_message('Jumpy: %s is not a jump point' % BaseJumpyCommand.key_entered_thus_far)
 			return
-			
+
 		row += 1
 		col += 1
-
 		row_offset, col_offset = BaseJumpyCommand.old_offsets
 		original_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
 
