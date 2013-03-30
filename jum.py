@@ -30,7 +30,7 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 		sublime_plugin.TextCommand.__init__(self, edit)
 
-	def set_jumpy_commands(self, new_view, on=True):
+	def set_jumpy_command_mode(self, new_view, on=True):
 		new_view.settings().set('command_mode', not on)
 		new_view.settings().set('jumpy_jump_mode', on)
 
@@ -86,7 +86,7 @@ class JumpyCommand(BaseJumpyCommand):
 			new_view.end_edit(edit)
 		
 		new_view = sublime.active_window().active_view()
-		self.set_jumpy_commands(new_view)
+		self.set_jumpy_command_mode(new_view)
 		new_view.set_scratch(True)
 		duplicate_contents(new_view, self._visible_text)
 
@@ -123,7 +123,7 @@ class JumpyCommand(BaseJumpyCommand):
 
 class InputKeyPart(BaseJumpyCommand):
 	def clean_up(self):
-		self.set_jumpy_commands(self.view, False)
+		self.set_jumpy_command_mode(self.view, False)
 		shortcut_window = self.view.window()
 		shortcut_window.run_command('close')
 
