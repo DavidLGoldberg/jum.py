@@ -8,9 +8,19 @@ A sublime plugin that creates dynamic hot keys to jump around a file.
 3. Enter two characters.
 4. Keep coding!
 
+## Settings
+
+    {
+	// Can be turned off to potentially improve performance or make less confusing.
+        "jumpy_use_file_extensions": true,
+        
+        "jumpy_use_upper_case_labels": false
+	}
+
 ## Key Bindings
 ### Defaults
 * Enter jump mode (default): <kbd>alt</kbd> + <kbd>space</kbd>
+* Reset first character entered: <kbd>backspace</kbd>
 * Cancel/exit jump mode (defualt): <kbd>esc</kbd> or <kbd>space</kbd>
 
 ### Fix for Vintage + common jj binding
@@ -29,16 +39,14 @@ as shown below:
 		]
 	}
 
-## Settings
-
-    {
-	// Can be turned off to potentially improve performance or make less confusing.
-        "use_file_extensions": true
-	}
-
 ## Notes
-* Works great with or without Vintage.  With Vintage it's accessible from command, insert mode, or visual mode (cancels highlight for this one).
+* Works great with or without Vintage
+* **Vintage Modes** supported
+  * command mode
+  * insert mode
+  * visual mode (sorry cancels select at the moment)
 
 ## TODO
-* label all views across windows with for example layout of two column etc.
-* remove unreachable highlights after first character hit (to reduce noise).
+* Label all views across windows with for example layout of two column etc.
+* Remove unreachable highlights after first character hit (to reduce noise).
+* Refer to the issues section for minor details.
