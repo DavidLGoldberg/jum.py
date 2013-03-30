@@ -13,15 +13,20 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 	keys = []
 
 	def __init__(self, edit):
-		if not BaseJumpyCommand.keys:
-			BaseJumpyCommand.keys = self.create_keys()
-
 		if not BaseJumpyCommand.settings:
 			sublime_settings = sublime.load_settings('Jumpy.sublime-settings')
 
-			jumpy_setting_names = ['jumpy_use_file_extensions']
+			jumpy_setting_names = ['jumpy_use_file_extensions', 'jumpy_use_upper_case_labels']
 			for setting_name in jumpy_setting_names:
-				BaseJumpyCommand.settings[setting_name] = sublime_settings.get(setting_name)	
+				try:
+					retrieved_setting = sublime_settings.get(setting_name)
+				except KeyError, e:
+					pass
+
+				BaseJumpyCommand.settings[setting_name] = retrieved_setting
+
+		if not BaseJumpyCommand.keys:
+			BaseJumpyCommand.keys = self.create_keys()
 
 		sublime_plugin.TextCommand.__init__(self, edit)
 
@@ -33,7 +38,9 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 		keys = []
 		for c1 in string.lowercase:
 			for c2 in string.lowercase:
-				keys.append(c1 + c2)
+				key = c1 + c2
+				key = key.upper() if BaseJumpyCommand.settings['jumpy_use_upper_case_labels'] else key
+				keys.append(key)
 		return keys
 
 class JumpyCommand(BaseJumpyCommand):
@@ -150,7 +157,10 @@ class InputKeyPart(BaseJumpyCommand):
 		original_view = sublime.active_window().active_view() # because shortcuts are closed
 
 		try:
-			row, col = BaseJumpyCommand.jump_locations[BaseJumpyCommand.key_entered_thus_far]
+			row, col = BaseJumpyCommand \
+				.jump_locations[BaseJumpyCommand.key_entered_thus_far.upper() \
+					if BaseJumpyCommand.settings['jumpy_use_upper_case_labels'] \
+					else BaseJumpyCommand.key_entered_thus_far]
 		except KeyError, e:
 			sublime.status_message('Jumpy: %s is not a jump point' % BaseJumpyCommand.key_entered_thus_far)
 			return
