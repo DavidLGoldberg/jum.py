@@ -45,14 +45,15 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 class JumpyCommand(BaseJumpyCommand):
 
-	def get_all_word_locations(self, file_contents):
+	def get_all_word_locations(self, list_of_texts):
 		locations = []
 		line_num = 0
 		p = re.compile('[\w]{2,}') # TODO: "add something to handle 'quoted symbol characters'
-		for line in file_contents.splitlines(False):
-			for m in p.finditer(line):
-				locations.append((line_num, m.start()))
-			line_num += 1
+		for text in list_of_texts:
+			for line in text_content.splitlines(False):
+				for m in p.finditer(line):
+					locations.append((line_num, m.start()))
+				line_num += 1
 		return locations
 
 	def get_jump_locations(self, keys, locations):
@@ -114,8 +115,10 @@ class JumpyCommand(BaseJumpyCommand):
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
-			self._visible_text = self.view.substr(self.view.visible_region())
-			locations = self.get_all_word_locations(self._visible_text)
+			for window in sublime.windows():
+				for view in window.views():
+					self._visible_texts.append(view.substr(view.visible_region()))
+			locations = self.get_all_word_locations(self._visible_texts)
 
 			BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
 
