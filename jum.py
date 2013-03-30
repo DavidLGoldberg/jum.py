@@ -96,7 +96,7 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
 		new_view.set_read_only(True)
 
-		new_view.set_viewport_position(self._old_viewport)
+		new_view.set_viewport_position(self._old_viewport, False)
 
 	def run(self, edit):
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
