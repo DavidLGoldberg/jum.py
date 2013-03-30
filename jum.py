@@ -5,6 +5,8 @@ import string, re
 from os.path import basename
 from async_utils import do_when
 
+JUMPY_FILE_INDICATOR = '[Jumpy]'
+
 class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 	settings = {}
@@ -57,9 +59,9 @@ class JumpyCommand(BaseJumpyCommand):
 		file_name = self.view.file_name()
 		if file_name:
 			if BaseJumpyCommand.settings['jumpy_use_file_extensions']:
-				file_name = 'Jumpy_' + basename(file_name)
+				file_name = JUMPY_FILE_INDICATOR + ' ' + basename(file_name)
 		else:
-			file_name = 'Jumpy'
+			file_name = JUMPY_FILE_INDICATOR
 		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
@@ -155,3 +157,24 @@ class InputKeyPart(BaseJumpyCommand):
 
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
+
+class JumpyCloser(sublime_plugin.EventListener):
+
+	has_been_activated = False
+
+	def on_activated(self, view):
+		is_jumpy_tab = lambda (string): basename(string).startswith(JUMPY_FILE_INDICATOR) if string is not None else False
+
+		if not JumpyCloser.has_been_activated:
+			if not is_jumpy_tab(view.name()) and not is_jumpy_tab(view.file_name()):
+				JumpyCloser.has_been_activated = False
+
+				for window in sublime.windows():
+					for new_view in window.views():
+						if is_jumpy_tab(new_view.name()) or is_jumpy_tab(new_view.file_name()):
+							window.focus_view(view)
+							window.focus_view(new_view)
+							window.run_command('close')
+
+		if is_jumpy_tab(view.name()) or is_jumpy_tab(view.file_name()):
+			has_been_activated = True #reset
