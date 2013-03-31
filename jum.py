@@ -30,6 +30,15 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 		sublime_plugin.TextCommand.__init__(self, edit)
 
+	def get_tab_name(self, view):
+		file_name = view.file_name()
+		if file_name:
+			if BaseJumpyCommand.settings['jumpy_use_file_extensions']:
+				file_name = JUMPY_FILE_INDICATOR + ' ' + basename(file_name)
+		else:
+			file_name = JUMPY_FILE_INDICATOR
+		return file_name
+
 	def set_jumpy_command_mode(self, new_view, on=True):
 		new_view.settings().set('command_mode', not on)
 		new_view.settings().set('jumpy_jump_mode', on)
@@ -45,12 +54,14 @@ class BaseJumpyCommand(sublime_plugin.TextCommand):
 
 class JumpyCommand(BaseJumpyCommand):
 
-	def get_all_word_locations(self, list_of_texts):
+	_visible_texts = {}
+
+	def get_all_word_locations(self, dictionary_of_texts):
 		locations = []
 		line_num = 0
 		p = re.compile('[\w]{2,}') # TODO: "add something to handle 'quoted symbol characters'
-		for text in list_of_texts:
-			for line in text_content.splitlines(False):
+		for text in dictionary_of_texts.items():
+			for line in text[1].splitlines(False):
 				for m in p.finditer(line):
 					locations.append((line_num, m.start()))
 				line_num += 1
@@ -60,20 +71,18 @@ class JumpyCommand(BaseJumpyCommand):
 		#This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
 		return dict(zip(keys, locations))
 
-	def activate_jumpy_mode(self):
-		self._old_viewport = self.view.viewport_position()
-		BaseJumpyCommand.old_offset = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
-		BaseJumpyCommand.old_file_size = self.view.substr(sublime.Region(0, self.view.size()))
+	def activate_jumpy_mode(self, view):
+		self._old_viewport = view.viewport_position()
+		BaseJumpyCommand.old_offset = view.rowcol(view.layout_to_text(self._old_viewport))
+		BaseJumpyCommand.old_file_size = view.substr(sublime.Region(0, view.size()))
 
-		file_name = self.view.file_name()
-		if file_name:
-			if BaseJumpyCommand.settings['jumpy_use_file_extensions']:
-				file_name = JUMPY_FILE_INDICATOR + ' ' + basename(file_name)
-		else:
-			file_name = JUMPY_FILE_INDICATOR
-		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
-
-		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
+		file_name = self.get_tab_name(view)	
+		current_window = view.window()
+		if current_window:
+			label_view = view.window().open_file(file_name, sublime.TRANSIENT)
+			do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
+			# I think I need to move do when out to run.. and maybe return back label view through to it..
+			# because I need to block b4 starting the next for active_view below.. might not be so complicated though
 
 	def on_labels(self):
 		def duplicate_contents(new_view, visible_text):
@@ -89,7 +98,8 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view = sublime.active_window().active_view()
 		self.set_jumpy_command_mode(new_view)
 		new_view.set_scratch(True)
-		duplicate_contents(new_view, self._visible_text)
+		print self._visible_texts
+		duplicate_contents(new_view, self._visible_texts[basename(new_view.file_name())])
 
 		regions = []
 		for (key, (row, col)) in BaseJumpyCommand.jump_locations.items():
@@ -117,12 +127,12 @@ class JumpyCommand(BaseJumpyCommand):
 			
 			for window in sublime.windows():
 				for view in window.views():
-					self._visible_texts.append(view.substr(view.visible_region()))
-			locations = self.get_all_word_locations(self._visible_texts)
+					self._visible_texts[self.get_tab_name(view)] = view.substr(view.visible_region())
+					locations = self.get_all_word_locations(self._visible_texts)
 
-			BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
+					BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
 
-			self.activate_jumpy_mode()
+					self.activate_jumpy_mode(view)
 
 class InputKeyPart(BaseJumpyCommand):
 	def clean_up(self):
