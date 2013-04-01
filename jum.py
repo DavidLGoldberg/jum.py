@@ -1,47 +1,9 @@
-import sublime, sublime_plugin
-import GotoPoint
-import tempfile
-import string, re
-from os.path import basename
+import sublime
+import re
 from async_utils import do_when
+from base_jumpy import BaseJumpyCommand
+from tab_utils import get_tab_name
 
-JUMPY_FILE_INDICATOR = '[Jumpy]'
-
-class BaseJumpyCommand(sublime_plugin.TextCommand):
-
-	settings = {}
-	keys = []
-
-	def __init__(self, edit):
-		if not BaseJumpyCommand.settings:
-			sublime_settings = sublime.load_settings('Jumpy.sublime-settings')
-
-			jumpy_setting_names = ['jumpy_use_file_extensions', 'jumpy_use_upper_case_labels']
-			for setting_name in jumpy_setting_names:
-				try:
-					retrieved_setting = sublime_settings.get(setting_name)
-				except KeyError, e:
-					pass
-
-				BaseJumpyCommand.settings[setting_name] = retrieved_setting
-
-		if not BaseJumpyCommand.keys:
-			BaseJumpyCommand.keys = self.create_keys()
-
-		sublime_plugin.TextCommand.__init__(self, edit)
-
-	def set_jumpy_command_mode(self, new_view, on=True):
-		new_view.settings().set('command_mode', not on)
-		new_view.settings().set('jumpy_jump_mode', on)
-
-	def create_keys(self):
-		keys = []
-		for c1 in string.lowercase:
-			for c2 in string.lowercase:
-				key = c1 + c2
-				key = key.upper() if BaseJumpyCommand.settings['jumpy_use_upper_case_labels'] else key
-				keys.append(key)
-		return keys
 
 class JumpyCommand(BaseJumpyCommand):
 
@@ -64,12 +26,8 @@ class JumpyCommand(BaseJumpyCommand):
 		BaseJumpyCommand.old_offset = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 		BaseJumpyCommand.old_file_size = self.view.substr(sublime.Region(0, self.view.size()))
 
-		file_name = self.view.file_name()
-		if file_name:
-			if BaseJumpyCommand.settings['jumpy_use_file_extensions']:
-				file_name = JUMPY_FILE_INDICATOR + ' ' + basename(file_name)
-		else:
-			file_name = JUMPY_FILE_INDICATOR
+		file_name = get_tab_name(self.view, BaseJumpyCommand.settings['jumpy_use_file_extensions'] \
+			if 'jumpy_use_file_extensions' in BaseJumpyCommand.settings else False)
 		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
@@ -120,76 +78,3 @@ class JumpyCommand(BaseJumpyCommand):
 			BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
 
 			self.activate_jumpy_mode()
-
-class InputKeyPart(BaseJumpyCommand):
-	def clean_up(self):
-		self.set_jumpy_command_mode(self.view, False)
-		shortcut_window = self.view.window()
-		shortcut_window.run_command('close')
-
-	def run(self, edit, character):
-
-		def cancel(view):
-			print 'Jumpy: cancel'
-			sublime.status_message('Jumpy: cancel')
-			self.clean_up()
-
-		if character in [' ', 'escape']:
-			cancel(self.view)
-		elif character == 'backspace':
-			BaseJumpyCommand.key_entered_thus_far = ''
-			sublime.status_message('Jumpy: *reset*')
-		else:
-			BaseJumpyCommand.key_entered_thus_far = BaseJumpyCommand.key_entered_thus_far + character
-
-			if len(BaseJumpyCommand.key_entered_thus_far) > 1: #Time to jump
-				self.jump(BaseJumpyCommand.key_entered_thus_far)
-			else:
-				sublime.status_message('Jumpy: %s' % BaseJumpyCommand.key_entered_thus_far)
-
-	def jump(self, shortcut_entered):
-		self.clean_up()
-		# I am pretty sure the code below is NOT needed.  That the run_command is in fact SYNCHRONOUS.
-		#do_when(lambda: not self.view.name().startswith('Jumpy'), lambda: self.on_jump_entered(), 10)
-		self.on_jump_entered()
-
-	def on_jump_entered(self):
-		original_view = sublime.active_window().active_view() # because shortcuts are closed
-
-		try:
-			row, col = BaseJumpyCommand \
-				.jump_locations[BaseJumpyCommand.key_entered_thus_far.upper() \
-					if BaseJumpyCommand.settings['jumpy_use_upper_case_labels'] \
-					else BaseJumpyCommand.key_entered_thus_far]
-		except KeyError, e:
-			sublime.status_message('Jumpy: %s is not a jump point' % BaseJumpyCommand.key_entered_thus_far)
-			return
-
-		row += 1
-		col += 1
-		row_offset, col_offset = BaseJumpyCommand.old_offset
-		original_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
-
-		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
-		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
-
-class JumpyCloser(sublime_plugin.EventListener):
-
-	has_been_activated = False
-
-	def on_activated(self, view):
-		is_jumpy_tab = lambda (string): basename(string).startswith(JUMPY_FILE_INDICATOR) if string is not None else False
-
-		if not JumpyCloser.has_been_activated:
-			if not is_jumpy_tab(view.name()) and not is_jumpy_tab(view.file_name()):
-				JumpyCloser.has_been_activated = False
-
-				for window in sublime.windows():
-					for new_view in window.views():
-						if is_jumpy_tab(new_view.name()) or is_jumpy_tab(new_view.file_name()):
-							window.focus_view(view)
-							window.focus_view(new_view)
-							window.run_command('close')
-
-		if is_jumpy_tab(view.name()) or is_jumpy_tab(view.file_name()):
-			has_been_activated = True #reset

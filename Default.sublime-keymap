@@ -5,95 +5,95 @@
 	//
 
 	// space and escape for canceling.
-	{ "keys": [" "], "command": "input_key_part", "args": {"character": " "},
+	{ "keys": [" "], "command": "key_component", "args": {"character": " "},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["escape"], "command": "input_key_part", "args": {"character": "escape"},
+	{ "keys": ["escape"], "command": "key_component", "args": {"character": "escape"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
 
 	// backspace lets you undo the first character entered.
-	{ "keys": ["backspace"], "command": "input_key_part", "args": {"character": "backspace"},
+	{ "keys": ["backspace"], "command": "key_component", "args": {"character": "backspace"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
 
 	// a - z for jumping.
-	{ "keys": ["a"], "command": "input_key_part", "args": {"character": "a"},
+	{ "keys": ["a"], "command": "key_component", "args": {"character": "a"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["b"], "command": "input_key_part", "args": {"character": "b"},
+	{ "keys": ["b"], "command": "key_component", "args": {"character": "b"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["c"], "command": "input_key_part", "args": {"character": "c"},
+	{ "keys": ["c"], "command": "key_component", "args": {"character": "c"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["d"], "command": "input_key_part", "args": {"character": "d"},
+	{ "keys": ["d"], "command": "key_component", "args": {"character": "d"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["e"], "command": "input_key_part", "args": {"character": "e"},
+	{ "keys": ["e"], "command": "key_component", "args": {"character": "e"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["f"], "command": "input_key_part", "args": {"character": "f"},
+	{ "keys": ["f"], "command": "key_component", "args": {"character": "f"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["g"], "command": "input_key_part", "args": {"character": "g"},
+	{ "keys": ["g"], "command": "key_component", "args": {"character": "g"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["h"], "command": "input_key_part", "args": {"character": "h"},
+	{ "keys": ["h"], "command": "key_component", "args": {"character": "h"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["i"], "command": "input_key_part", "args": {"character": "i"},
+	{ "keys": ["i"], "command": "key_component", "args": {"character": "i"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["j"], "command": "input_key_part", "args": {"character": "j"},
+	{ "keys": ["j"], "command": "key_component", "args": {"character": "j"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["k"], "command": "input_key_part", "args": {"character": "k"},
+	{ "keys": ["k"], "command": "key_component", "args": {"character": "k"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["l"], "command": "input_key_part", "args": {"character": "l"},
+	{ "keys": ["l"], "command": "key_component", "args": {"character": "l"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["m"], "command": "input_key_part", "args": {"character": "m"},
+	{ "keys": ["m"], "command": "key_component", "args": {"character": "m"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["n"], "command": "input_key_part", "args": {"character": "n"},
+	{ "keys": ["n"], "command": "key_component", "args": {"character": "n"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["o"], "command": "input_key_part", "args": {"character": "o"},
+	{ "keys": ["o"], "command": "key_component", "args": {"character": "o"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["p"], "command": "input_key_part", "args": {"character": "p"},
+	{ "keys": ["p"], "command": "key_component", "args": {"character": "p"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["q"], "command": "input_key_part", "args": {"character": "q"},
+	{ "keys": ["q"], "command": "key_component", "args": {"character": "q"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["r"], "command": "input_key_part", "args": {"character": "r"},
+	{ "keys": ["r"], "command": "key_component", "args": {"character": "r"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["s"], "command": "input_key_part", "args": {"character": "s"},
+	{ "keys": ["s"], "command": "key_component", "args": {"character": "s"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["t"], "command": "input_key_part", "args": {"character": "t"},
+	{ "keys": ["t"], "command": "key_component", "args": {"character": "t"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["u"], "command": "input_key_part", "args": {"character": "u"},
+	{ "keys": ["u"], "command": "key_component", "args": {"character": "u"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["v"], "command": "input_key_part", "args": {"character": "v"},
+	{ "keys": ["v"], "command": "key_component", "args": {"character": "v"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["w"], "command": "input_key_part", "args": {"character": "w"},
+	{ "keys": ["w"], "command": "key_component", "args": {"character": "w"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["x"], "command": "input_key_part", "args": {"character": "x"},
+	{ "keys": ["x"], "command": "key_component", "args": {"character": "x"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["y"], "command": "input_key_part", "args": {"character": "y"},
+	{ "keys": ["y"], "command": "key_component", "args": {"character": "y"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	},
-	{ "keys": ["z"], "command": "input_key_part", "args": {"character": "z"},
+	{ "keys": ["z"], "command": "key_component", "args": {"character": "z"},
 		"context": [{"key": "setting.jumpy_jump_mode"}]
 	}
 ]
