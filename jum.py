@@ -57,19 +57,24 @@ class JumpyCommand(BaseJumpyCommand):
 	_visible_texts = {}
 
 	def get_all_word_locations(self, dictionary_of_texts):
-		locations = []
+		locations = {}
+		current_locations = []
 		line_num = 0
 		p = re.compile('[\w]{2,}') # TODO: "add something to handle 'quoted symbol characters'
-		for text in dictionary_of_texts.items():
-			for line in text[1].splitlines(False):
+		for key, text in dictionary_of_texts.items():
+			for line in text.splitlines(False):
 				for m in p.finditer(line):
-					locations.append((line_num, m.start()))
+					current_locations.append((line_num, m.start()))
 				line_num += 1
+			locations[key] = current_locations
 		return locations
 
 	def get_jump_locations(self, keys, locations):
-		#This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
-		return dict(zip(keys, locations))
+		jump_locations = {}
+		for key, value in locations:
+			#This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
+			jump_locations[key] = dict(zip(keys, locations))
+		return jump_locations
 
 	def activate_jumpy_mode(self, view):
 		self._old_viewport = view.viewport_position()
@@ -128,10 +133,13 @@ class JumpyCommand(BaseJumpyCommand):
 			for window in sublime.windows():
 				for view in window.views():
 					self._visible_texts[self.get_tab_name(view)] = view.substr(view.visible_region())
-					locations = self.get_all_word_locations(self._visible_texts)
 
-					BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
+			locations = self.get_all_word_locations(self._visible_texts)
 
+			BaseJumpyCommand.jump_locations = self.get_jump_locations(BaseJumpyCommand.keys, locations)
+
+			for window in sublime.windows():
+				for view in window.views():
 					self.activate_jumpy_mode(view)
 
 class InputKeyPart(BaseJumpyCommand):
