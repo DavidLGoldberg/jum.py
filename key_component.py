@@ -1,12 +1,15 @@
-import sublime
 from base_jumpy import BaseJumpyCommand
+from tab_utils import get_view_key
+from index import IndexHandler
+from settings import Settings
+import sublime
 
 
 class KeyComponentCommand(BaseJumpyCommand):
 	def clean_up(self):
 		self.set_jumpy_command_mode(self.view, False)
 		shortcut_window = self.view.window()
-		shortcut_window.run_command('close')
+		shortcut_window.run_command('close') # Synchronous
 
 	def run(self, edit, character):
 
@@ -30,18 +33,18 @@ class KeyComponentCommand(BaseJumpyCommand):
 
 	def jump(self, shortcut_entered):
 		self.clean_up()
-		# I am pretty sure the code below is NOT needed.  That the run_command is in fact SYNCHRONOUS.
-		#do_when(lambda: not self.view.name().startswith('Jumpy'), lambda: self.on_jump_entered(), 10)
 		self.on_jump_entered()
 
 	def on_jump_entered(self):
 		original_view = sublime.active_window().active_view() # because shortcuts are closed
 
 		try:
-			row, col = BaseJumpyCommand \
-				.jump_locations[BaseJumpyCommand.key_entered_thus_far.upper() \
-					if BaseJumpyCommand.settings['jumpy_use_upper_case_labels'] \
-					else BaseJumpyCommand.key_entered_thus_far]
+			row, col = IndexHandler \
+				.jump_locations[get_view_key(original_view)] \
+					[BaseJumpyCommand.key_entered_thus_far.upper() \
+						if Settings.sublime_settings \
+							.get('jumpy_use_upper_case_labels') \
+						else BaseJumpyCommand.key_entered_thus_far]
 		except KeyError, e:
 			sublime.status_message('Jumpy: %s is not a jump point' % BaseJumpyCommand.key_entered_thus_far)
 			return
@@ -53,4 +56,3 @@ class KeyComponentCommand(BaseJumpyCommand):
 
 		print 'Jumpy: jumped to row: %s, col: %s' % (row, col)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
-
