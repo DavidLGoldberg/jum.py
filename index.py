@@ -7,6 +7,7 @@ class IndexHandler(sublime_plugin.EventListener):
 
 	keys = []
 	jump_locations = {}
+	viewport_positions = {}
 
 	def __init__(self):
 		Settings.load_settings()
@@ -24,14 +25,21 @@ class IndexHandler(sublime_plugin.EventListener):
 	def on_activated(self, view):
 		if not is_jumpy_tab(view):
 			self.store_locations(view)
+			self.store_viewport(view)
 
 	def on_modified(self, view):
 		if not is_jumpy_tab(view):
 			self.store_locations(view)
+			self.store_viewport(view)
 
 	def on_close(self, view):
 		view_key = get_view_key(view) 
 		if view_key in self.jump_locations: del self.jump_locations[view_key]
+
+	# TODO: might be useless...
+	def on_deactivated(self, view):
+		if not is_jumpy_tab(view):
+			self.store_viewport(view)
 
 	def store_locations(self, view):
 		visible_text = view.substr(view.visible_region())
@@ -42,6 +50,13 @@ class IndexHandler(sublime_plugin.EventListener):
 		if view_key:
 			IndexHandler.jump_locations[view_key] = \
 				self.get_jump_locations(IndexHandler.keys, locations)
+
+	# TODO: might be useless...
+	def store_viewport(self, view):
+		view_key = get_view_key(view)
+
+		self.viewport_positions[view_key] = \
+			view.viewport_position()
 
 	def get_all_word_locations(self, file_contents):
 		locations = []

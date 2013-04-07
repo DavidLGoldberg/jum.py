@@ -9,7 +9,11 @@ from index import IndexHandler
 class JumpyCommand(BaseJumpyCommand):
 
 	def activate_jumpy_mode(self):
-		self._old_viewport = self.view.viewport_position()
+		view_key = get_view_key(self.view)
+		if not view_key:
+			return
+
+		self._old_viewport = IndexHandler.viewport_positions[view_key]
 		BaseJumpyCommand.old_offset = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
 		BaseJumpyCommand.old_file_size = self.view.substr(sublime.Region(0, self.view.size()))
 
