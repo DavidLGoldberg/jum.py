@@ -7,16 +7,18 @@ from index import IndexHandler
 
 
 class JumpyCommand(BaseJumpyCommand):
+	old_view = None
 
-	def activate_jumpy_mode(self):
-		self._old_viewport = self.view.viewport_position()
-		BaseJumpyCommand.old_offset = self.view.rowcol(self.view.layout_to_text(self._old_viewport))
-		BaseJumpyCommand.old_file_size = self.view.substr(sublime.Region(0, self.view.size()))
+	def activate_jumpy_mode(self, view):
+		self.old_view = view
+		self._old_viewport = view.viewport_position()
+		BaseJumpyCommand.old_offset = view.rowcol(view.layout_to_text(self._old_viewport))
+		BaseJumpyCommand.old_file_size = view.substr(sublime.Region(0, view.size()))
 
 		use_file_extensions = Settings.sublime_settings.get('jumpy_use_file_extensions')
-		file_name = get_tab_name(self.view, \
+		file_name = get_tab_name(view, \
 			use_file_extensions if use_file_extensions else False)
-		label_view = self.view.window().open_file(file_name, sublime.TRANSIENT)
+		label_view = view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
 
@@ -34,10 +36,10 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view = sublime.active_window().active_view()
 		self.set_jumpy_command_mode(new_view)
 		new_view.set_scratch(True)
-		duplicate_contents(new_view, self.view.substr(self.view.visible_region()))
+		duplicate_contents(new_view, self.old_view.substr(self.old_view.visible_region()))
 
 		regions = []
-		view_key = get_view_key(self.view)
+		view_key = get_view_key(self.old_view)
 		if view_key:
 			for (key, (row, col)) in IndexHandler.jump_locations[view_key].items():
 				row += BaseJumpyCommand.old_offset[0]
@@ -63,4 +65,7 @@ class JumpyCommand(BaseJumpyCommand):
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
 			TabCount.count = 0
-			self.activate_jumpy_mode()
+			for window in sublime.windows():
+				for view in window.views():
+					if view.visible_region():
+						self.activate_jumpy_mode(view)
