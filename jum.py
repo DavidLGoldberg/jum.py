@@ -60,6 +60,7 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view.set_viewport_position(self.old_viewport, False)
 
 	def run(self, edit):
+
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
