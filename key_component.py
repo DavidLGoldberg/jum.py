@@ -1,5 +1,5 @@
 from base_jumpy import BaseJumpyCommand
-from tab_utils import get_view_key
+from view_utils import get_view_key
 from index import IndexHandler
 from settings import Settings
 import sublime

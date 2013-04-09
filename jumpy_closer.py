@@ -1,5 +1,5 @@
 import sublime, sublime_plugin 
-from tab_utils import is_jumpy_tab
+from view_utils import is_jumpy_tab
 
 
 class JumpyCloser(sublime_plugin.EventListener):

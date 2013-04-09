@@ -1,5 +1,5 @@
 from settings import Settings
-from tab_utils import is_jumpy_tab, get_view_key
+from view_utils import is_jumpy_tab, get_view_key
 import sublime, sublime_plugin
 import string, re
 

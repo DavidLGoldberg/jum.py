@@ -2,7 +2,7 @@ import sublime
 from settings import Settings
 from async_utils import do_when
 from base_jumpy import BaseJumpyCommand
-from tab_utils import get_view_key, get_tab_name, TabCount
+from view_utils import get_view_key, get_tab_name, TabCount
 from index import IndexHandler
 
 
