@@ -59,8 +59,8 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view.set_viewport_position(self._old_viewport, False)
 
 	def run(self, edit):
+		TabCount.count = 0
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
-			TabCount.count = 0
 			self.activate_jumpy_mode()
