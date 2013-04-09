@@ -7,18 +7,17 @@ from index import IndexHandler
 
 
 class JumpyCommand(BaseJumpyCommand):
-	old_view = None
 
 	def activate_jumpy_mode(self, view):
 		self.old_view = view
-		self._old_viewport = view.viewport_position()
-		BaseJumpyCommand.old_offset = view.rowcol(view.layout_to_text(self._old_viewport))
-		BaseJumpyCommand.old_file_size = view.substr(sublime.Region(0, view.size()))
+		self.old_viewport = self.old_view.viewport_position()
+		self.old_offset = self.old_view.rowcol(self.old_view.layout_to_text(self.old_viewport))
+		self.old_file_size = self.old_view.substr(sublime.Region(0, self.old_view.size()))
 
 		use_file_extensions = Settings.sublime_settings.get('jumpy_use_file_extensions')
-		file_name = get_tab_name(view, \
+		file_name = get_tab_name(self.old_view, \
 			use_file_extensions if use_file_extensions else False)
-		label_view = view.window().open_file(file_name, sublime.TRANSIENT)
+		label_view = self.old_view.window().open_file(file_name, sublime.TRANSIENT)
 
 		do_when(lambda: not label_view.is_loading(), lambda: self.on_labels(), interval=10)
 
@@ -26,10 +25,10 @@ class JumpyCommand(BaseJumpyCommand):
 		def duplicate_contents(new_view, visible_text):
 			edit = new_view.begin_edit()
 			padded_text = visible_text \
-				.rjust(len(visible_text) + BaseJumpyCommand.old_offset[0], '\n')
+				.rjust(len(visible_text) + self.old_offset[0], '\n')
 			padded_text = padded_text \
 				.ljust(len(padded_text) + \
-					(BaseJumpyCommand.old_file_size.count('\n') - (padded_text.count('\n')) ), '\n')
+					(self.old_file_size.count('\n') - (padded_text.count('\n')) ), '\n')
 			new_view.insert(edit, 0, padded_text)
 			new_view.end_edit(edit)
 		
@@ -42,8 +41,8 @@ class JumpyCommand(BaseJumpyCommand):
 		view_key = get_view_key(self.old_view)
 		if view_key:
 			for (key, (row, col)) in IndexHandler.jump_locations[view_key].items():
-				row += BaseJumpyCommand.old_offset[0]
-				col += BaseJumpyCommand.old_offset[1]
+				row += self.old_offset[0]
+				col += self.old_offset[1]
 				region_start = new_view.text_point(row, col)
 				region_finish = new_view.text_point(row, col + 2)
 
@@ -58,14 +57,24 @@ class JumpyCommand(BaseJumpyCommand):
 		new_view.add_regions('jumpylabel', regions, 'jumpylabel')
 		new_view.set_read_only(True)
 
-		new_view.set_viewport_position(self._old_viewport, False)
+		new_view.set_viewport_position(self.old_viewport, False)
 
 	def run(self, edit):
 		if not self.view.settings().get('jumpy_jump_mode'): # don't open twice
 			BaseJumpyCommand.key_entered_thus_far = ''
 			
 			TabCount.count = 0
+
 			for window in sublime.windows():
-				for view in window.views():
-					if view.visible_region():
-						self.activate_jumpy_mode(view)
+				old_focused_group = window.active_group()
+
+				for group in range(window.num_groups()):
+					window.focus_group(group)
+					view = window.active_view_in_group(group)
+					print view.file_name()
+					print '^file_name'
+					print view.name()
+					print '^name'
+					self.activate_jumpy_mode(view)
+
+				window.focus_group(old_focused_group)
