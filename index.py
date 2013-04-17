@@ -14,22 +14,31 @@ def create_keys():
 
 _keys = create_keys()
 
-def get_locations(view):
-	visible_text = view.substr(view.visible_region())
-	info = _get_all_word_info(visible_text)
+class Indexer:
 
-	return _get_jump_info(_keys, info)
+	def __init__(self):
+		self._all_labels = {}
+		self._all_jumps = {} 
 
-def _get_all_word_info(file_contents):
-	info = []
-	line_num = 0
-	pattern = re.compile('([\w]){2,}') # TODO: "add something to handle 'quoted symbol characters'
-	for line in file_contents.splitlines(False):
-		for match in pattern.finditer(line):
-			info.append(((line_num, match.start()), match.group(0)))
-		line_num += 1
-	return info
+	def create_index(self, views):
+		keys = iter(_keys)
+		for view in views:
+			self.all_labels[view] = []
+			visible_text = view.substr(view.visible_region())
+			line_num = 0
+			pattern = re.compile('([\w]){2,}') # TODO: "add something to handle 'quoted symbol characters'
+			for line in visible_text.splitlines(False):
+				for match in pattern.finditer(line):
+					info = ((line_num, match.start()), match.group(0))
+					next_key = next(keys)
+					self._all_labels[view].append((next_key, info))
+					self._all_jumps[next_key] = (view, info)
+				line_num += 1
 
-def _get_jump_info(keys, info):
-	# This operation handles shortages of keys and or locations for a max of 26 x 26 = 676 keys.
-	return dict(zip(keys, info))
+	@property
+	def all_labels(self):
+		"""Get the previously indexed set of all labels."""
+		return self._all_labels
+
+	def get_jump_info(self, key):
+		return self._all_jumps[key]

@@ -1,5 +1,5 @@
 # jum.py
-A sublime plugin that creates dynamic hot keys to jump around a file.
+A sublime plugin that creates dynamic hot keys to jump around files across visible views and windows.
 
 ## How to jump
 1. Hit <kbd>alt</kbd> + <kbd>space</kbd>
@@ -47,6 +47,5 @@ as shown below:
   * visual mode (sorry cancels select at the moment)
 
 ## TODO
-* Label all views across windows with for example layout of two column etc.
 * Remove unreachable highlights after first character hit (to reduce noise).
 * Refer to the issues section for minor details.
