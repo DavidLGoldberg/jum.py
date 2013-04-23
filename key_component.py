@@ -44,7 +44,7 @@ class KeyComponentCommand(BaseJumpyCommand):
 
 	def on_jump_entered(self):
 		try:
-			view, ((row, col), word) = BaseJumpyCommand.indexer.get_jump_info( \
+			target_view, ((row, col), word) = BaseJumpyCommand.indexer.get_jump_info( \
 					BaseJumpyCommand.key_entered_thus_far.upper() \
 						if Settings.sublime_settings \
 							.get('jumpy_use_upper_case_labels') \
@@ -56,8 +56,8 @@ class KeyComponentCommand(BaseJumpyCommand):
 		row += 1
 		col += 1
 		row_offset, col_offset = BaseJumpyCommand.old_offset
-		self.window.focus_view(view)
-		view.window().run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
+		self.window.focus_view(target_view)
+		target_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
 
 		print 'Jumpy: jumped to row: %s, col: %s, word: %s' % (row, col, word)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
