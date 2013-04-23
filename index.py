@@ -1,16 +1,13 @@
 from settings import Settings
+import itertools
 import string, re
 
 def create_keys():
-	Settings.load_settings() # TODO: this will be saved?
-	keys = []
-	for c1 in string.lowercase:
-		for c2 in string.lowercase:
-			key = c1 + c2
-			key = key.upper() if Settings.sublime_settings \
-				.get('jumpy_use_upper_case_labels') else key
-			keys.append(key)
-	return keys
+    Settings.load_settings() # TODO: this will be saved?
+    use_upper = Settings.sublime_settings.get("jumpy_use_upper_case_labels")
+    base = string.uppercase if use_upper else string.lowercase
+    keys = [''.join(pair) for pair in itertools.permutations(base, 2)]
+    return keys
 
 _keys = create_keys()
 
