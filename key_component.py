@@ -1,27 +1,33 @@
 from base_jumpy import BaseJumpyCommand
 from settings import Settings
 import sublime_plugin, sublime
+import threading
 
 
 class JumpyCleanupCommand(BaseJumpyCommand):
+	jump_mode_lock = threading.Lock()
 
 	def run(self):
-		for window in sublime.windows():
-			for view in window.views():
-				window.focus_view(view)
-				view.set_read_only(False)
+		print 'Jumpy: cancel'
+		sublime.status_message('Jumpy: cancel')
 
-				view.run_command('undo')
+		if JumpyCleanupCommand.jump_mode_lock.acquire(False):
+			for window in sublime.windows():
+				for view in window.views():
+					window.focus_view(view)
+					view.set_read_only(False)
 
-				view.set_scratch(False)
-				self.restore_command_modes(view)
+					view.run_command('undo')
+
+					view.set_scratch(False)
+					self.restore_command_modes(view)
+					if JumpyCleanupCommand.jump_mode_lock.locked():
+						JumpyCleanupCommand.jump_mode_lock.release()
 
 class KeyComponentCommand(BaseJumpyCommand):
 	def run(self, character):
 
 		def cancel(window):
-			print 'Jumpy: cancel'
-			sublime.status_message('Jumpy: cancel')
 			window.run_command('jumpy_cleanup')
 
 		def jump(window):
@@ -61,3 +67,20 @@ class KeyComponentCommand(BaseJumpyCommand):
 
 		print 'Jumpy: jumped to row: %s, col: %s, word: %s' % (row, col, word)
 		sublime.status_message('Jumpy: jumped to row: %s, col: %s' % (row, col))
+
+class JumpyListener(sublime_plugin.EventListener):
+	labeling_in_progress_lock = threading.Lock()
+
+	def on_deactivated(self, view):
+		settings = view.settings()
+		if settings.get('jumpy_jump_mode'):
+			view.window().run_command('jumpy_cleanup')
+
+	def on_selection_modified(self, view):
+		settings = view.settings()
+
+		if JumpyListener.labeling_in_progress_lock.acquire(False):
+			if settings.get('jumpy_jump_mode'):
+				view.window().run_command('jumpy_cleanup')
+				if JumpyListener.labeling_in_progress_lock.locked():
+					JumpyListener.labeling_in_progress_lock.release()
