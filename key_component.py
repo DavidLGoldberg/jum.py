@@ -27,16 +27,21 @@ class JumpyCleanupCommand(BaseJumpyCommand):
 class KeyComponentCommand(BaseJumpyCommand):
 	def run(self, character):
 
-		def cancel(window):
-			window.run_command('jumpy_cleanup')
+		def cancel():
+			print 'before'
+			sublime.run_command('jumpy_cleanup')
+			print 'after'
 
 		def jump(window):
-			window.run_command('jumpy_cleanup')
+			sublime.run_command('jumpy_cleanup')
 			self.on_jump_entered()
 
-		window = self.window
+		window = sublime.active_window()
+		print 'window:'
+		print window
 		if character in [' ', 'escape']:
-			cancel(window)
+			print 'here???'
+			cancel()
 		elif character == 'backspace':
 			BaseJumpyCommand.key_entered_thus_far = ''
 			sublime.status_message('Jumpy: *reset*')
@@ -62,7 +67,7 @@ class KeyComponentCommand(BaseJumpyCommand):
 		row += 1
 		col += 1
 		row_offset, col_offset = BaseJumpyCommand.old_offset
-		self.window.focus_view(target_view)
+		sublime.active_window().focus_view(target_view)
 		target_view.run_command("goto_point", {"row": row + row_offset, "col": col + col_offset})
 
 		print 'Jumpy: jumped to row: %s, col: %s, word: %s' % (row, col, word)
@@ -72,15 +77,21 @@ class JumpyListener(sublime_plugin.EventListener):
 	labeling_in_progress_lock = threading.Lock()
 
 	def on_deactivated(self, view):
-		settings = view.settings()
-		if settings.get('jumpy_jump_mode'):
-			view.window().run_command('jumpy_cleanup')
+		print '!!!!!!!'
+		self.on_selection_modified(view)
+		# settings = view.settings()
+		# if settings.get('jumpy_jump_mode'):
+		# 	sublime.run_command('jumpy_cleanup')
 
 	def on_selection_modified(self, view):
-		settings = view.settings()
-
 		if JumpyListener.labeling_in_progress_lock.acquire(False):
+			settings = view.settings()
 			if settings.get('jumpy_jump_mode'):
-				view.window().run_command('jumpy_cleanup')
+				sublime.run_command('jumpy_cleanup')
 				if JumpyListener.labeling_in_progress_lock.locked():
 					JumpyListener.labeling_in_progress_lock.release()
+		# else:
+		# 	print ' here???????????????????????????'
+		# 	settings = view.settings()
+		# 	if settings.get('jumpy_jump_mode'):
+		# 		sublime.run_command('jumpy_cleanup')

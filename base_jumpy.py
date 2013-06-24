@@ -3,17 +3,17 @@ from settings import Settings
 from index import Indexer
 
 
-class BaseJumpyCommand(sublime_plugin.WindowCommand):
+class BaseJumpyCommand(sublime_plugin.ApplicationCommand):
 
 	key_entered_thus_far = ''
 	indexer = Indexer()
 
-	def __init__(self, window):
+	def __init__(self):
 		Settings.load_settings()
 		for window in sublime.windows():
 			for view in window.views():
 				view.settings().set('jumpy_jump_mode', False)
-		sublime_plugin.WindowCommand.__init__(self, window)
+		sublime_plugin.ApplicationCommand.__init__(self)
 
 	def set_jumpy_command_mode(self, view):
 		settings = view.settings()
