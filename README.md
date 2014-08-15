@@ -16,6 +16,11 @@ Feel free to Fork or look for code examples here, but I do suggest everyone chec
 Also, if you like Atom check out:
 [Jumpy in Atom](https://atom.io/packages/jumpy)
 
+## Sticking to sublime?
+Want a way to jump around?
+[sublime-EasyMotion](https://github.com/tednaleid/sublime-EasyMotion)
+This is a very mature package I discovered a little after I started winding down up on sublime Jumpy.  I had never seen Ace jump before.  I think the Jumpy technique is actually a little easier cognitively and therefore faster.  The atom's version has had some decent adoption.  I then learned about [vimium](https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb?hl=en) which does some very similar things to Jumpy.  BTW, the first idea I had for something like this was http://uix.sourceforge.net a research project back in school.
+
 ## How to jump
 1. Hit <kbd>alt</kbd> + <kbd>space</kbd>
 2. Choose from your presented labels:
