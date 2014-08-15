@@ -1,6 +1,21 @@
 # jum.py
 A sublime plugin that creates dynamic hot keys to jump around files across visible views and windows.
 
+## Unsupported & Unfinished Package
+For some reason people are still landing here and starring this package...
+
+Please note that **this package is both unfinished and unsupported**.  I have no immediate plans to continue this.  There was some good code in here that was almost working.  I had to do some extreme hacks to combat sublime's difficult architecture.
+
+If you want to look through the code, you'll have to look through a few branches.  They each have different techniques and different feature sets.  I had jumps working across not just views/panes but windows.  Unfortunately there were threading issues and well lots of other ones too.  Sublime made it very hard to test. 
+
+## Why switch to Atom?
+The [Atom](https://atom.io/) package architecture is much more powerful and a lot more flexible.
+
+Feel free to Fork or look for code examples here, but I do suggest everyone check out Atom, it's open source and shaping up very nicely.
+
+Also, if you like Atom check out:
+[Jumpy in Atom](https://atom.io/packages/jumpy)
+
 ## How to jump
 1. Hit <kbd>alt</kbd> + <kbd>space</kbd>
 2. Choose from your presented labels:
